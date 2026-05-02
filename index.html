@@ -1,65 +1,184 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Réalisations Faso</title>
+    
+    <!-- CONFIGURATION PWA (Illusion Application) -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Réalisations Faso">
+    
+    <!-- ICONES -->
+    <link rel="apple-touch-icon" href="icone.png">
+    <link rel="icon" type="image/png" href="icone.png">
+    <link rel="manifest" href="manifest.json">
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         :root { --green-main: #008000; --yellow: #ffcc00; --red-bf: #EF2B2D; --white: #ffffff; }
-        body { margin: 0; font-family: 'Poppins', sans-serif; background: #1a1a1a; display: flex; justify-content: center; min-height: 100vh; }
-        .iphone-xs-screen { width: 100%; max-width: 414px; background: var(--green-main); display: flex; flex-direction: column; height: 100vh; position: relative; }
+        
+        body { 
+            margin: 0; 
+            font-family: 'Poppins', sans-serif; 
+            background: #1a1a1a; 
+            display: flex; 
+            justify-content: center; 
+            min-height: 100vh; 
+        }
+
+        .iphone-xs-screen { 
+            width: 100%; 
+            max-width: 414px; 
+            background: var(--green-main); 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            position: relative; 
+        }
 
         /* HEADER STATIQUE */
-        .sticky-header { position: sticky; top: 0; z-index: 100; background: var(--green-main); padding-bottom: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .sticky-header { 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            background: var(--green-main); 
+            padding-bottom: 10px; 
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2); 
+        }
+
         header { padding: 25px 20px 10px; text-align: center; color: white; }
-        .flag-box { width: 60px; height: 38px; margin: 0 auto 10px; position: relative; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.2); }
+        
+        /* DRAPEAU BURKINA FASO */
+        .flag-box { 
+            width: 60px; 
+            height: 38px; 
+            margin: 0 auto 10px; 
+            position: relative; 
+            border-radius: 4px; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid rgba(255,255,255,0.2); 
+        }
         .flag-top { background: var(--red-bf); flex: 1; }
         .flag-bottom { background: var(--green-main); flex: 1; }
-        .flag-star { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--yellow); font-size: 16px; }
+        .flag-star { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            color: var(--yellow); 
+            font-size: 16px; 
+        }
 
-        /* FILTRES */
+        /* FILTRES ET STATS */
         .stats-area { background: rgba(0,0,0,0.2); margin: 0 15px 10px; padding: 12px; border-radius: 15px; }
         .year-grid { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
         .year-grid::-webkit-scrollbar { display: none; }
-        .year-card { background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 10px; min-width: 75px; text-align: center; cursor: pointer; transition: 0.3s; border: 1px solid rgba(255,255,255,0.1); color: white; }
+        
+        .year-card { 
+            background: rgba(255,255,255,0.1); 
+            padding: 8px 12px; 
+            border-radius: 10px; 
+            min-width: 75px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: white; 
+        }
         .year-card.active { background: var(--yellow); color: #000; border-color: var(--yellow); }
         .year-card span { display: block; font-size: 1rem; font-weight: 700; }
 
         .search-card { background: rgba(0, 0, 0, 0.2); padding: 15px; border-radius: 20px; margin: 0 15px; }
-        label { display: block; color: white; font-size: 0.6rem; font-weight: 600; margin-bottom: 4px; text-transform: uppercase; opacity: 0.9; }
-        select { width: 100%; background: white; border-radius: 10px; padding: 8px; color: black; outline: none; font-size: 0.85rem; font-weight: 500; }
+        label { 
+            display: block; 
+            color: white; 
+            font-size: 0.6rem; 
+            font-weight: 600; 
+            margin-bottom: 4px; 
+            text-transform: uppercase; 
+            opacity: 0.9; 
+        }
+        
+        select { 
+            width: 100%; 
+            background: white; 
+            border-radius: 10px; 
+            padding: 8px; 
+            color: black; 
+            outline: none; 
+            font-size: 0.85rem; 
+            font-weight: 500; 
+            border: none;
+        }
 
-        #totalCoutDisplay { margin: 10px 15px 0; padding: 10px; background: var(--white); border-radius: 12px; color: #000; text-align: center; font-weight: 700; font-size: 0.85rem; display: none; }
+        #totalCoutDisplay { 
+            margin: 10px 15px 0; 
+            padding: 10px; 
+            background: var(--white); 
+            border-radius: 12px; 
+            color: #000; 
+            text-align: center; 
+            font-weight: 700; 
+            font-size: 0.85rem; 
+            display: none; 
+        }
 
         /* CONTENU DÉFILANT */
-        .scrollable-content { flex: 1; overflow-y: auto; padding: 20px 15px 40px; scrollbar-width: none; }
+        .scrollable-content { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 20px 15px 40px; 
+            scrollbar-width: none; 
+        }
         .scrollable-content::-webkit-scrollbar { display: none; }
-        .project-item { background: white; border-radius: 20px; margin-bottom: 20px; overflow: hidden; box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
-        .p-images { display: flex; height: 120px; background: #eee; }
+
+        .project-item { 
+            background: white; 
+            border-radius: 20px; 
+            margin-bottom: 20px; 
+            overflow: hidden; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2); 
+        }
+        .p-images { display: flex; height: 140px; background: #eee; }
         .p-images img { width: 50%; object-fit: cover; border-right: 1px solid #fff; }
+        
         .p-content { padding: 15px; }
-        .p-title { font-weight: 700; color: #111; font-size: 0.9rem; margin-bottom: 5px; }
-        .p-info { font-size: 0.7rem; color: #666; margin-bottom: 3px; }
-        .progress-bar { background: #e0e0e0; height: 6px; border-radius: 10px; margin: 10px 0; }
-        .progress-fill { background: var(--green-main); height: 100%; border-radius: 10px; }
-        .p-cost { color: var(--green-main); font-weight: 700; font-size: 0.85rem; }
+        .p-title { font-weight: 700; color: #111; font-size: 0.95rem; margin-bottom: 5px; line-height: 1.2; }
+        .p-info { font-size: 0.75rem; color: #666; margin-bottom: 3px; }
+        
+        .progress-bar { background: #e0e0e0; height: 8px; border-radius: 10px; margin: 12px 0; overflow: hidden; }
+        .progress-fill { background: var(--green-main); height: 100%; border-radius: 10px; transition: width 0.5s ease-in-out; }
+        
+        .p-cost { color: var(--green-main); font-weight: 700; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="iphone-xs-screen">
+    <!-- En-tête qui reste fixe en haut -->
     <div class="sticky-header">
         <header>
-            <div class="flag-box"><div class="flag-top"></div><div class="flag-bottom"></div><div class="flag-star">★</div></div>
-            <h1 style="font-size: 1.1rem; margin: 0; color: white; text-transform: uppercase;">Réalisations Faso</h1>
+            <div class="flag-box">
+                <div class="flag-top"></div>
+                <div class="flag-bottom"></div>
+                <div class="flag-star">★</div>
+            </div>
+            <h1 style="font-size: 1.1rem; margin: 0; color: white; text-transform: uppercase; letter-spacing: 1px;">Réalisations Faso</h1>
         </header>
 
-        <div class="stats-area"><div id="yearStats" class="year-grid"></div></div>
+        <!-- Filtres par année (Générés dynamiquement) -->
+        <div class="stats-area">
+            <div id="yearStats" class="year-grid"></div>
+        </div>
 
+        <!-- Filtre par Région -->
         <div class="search-card">
-            <label>Région</label>
+            <label>Filtrer par Région</label>
             <select id="filterRegion" onchange="resetYearAndLoad()">
                 <option value="Tous">Toutes les régions</option>
                 <option>Bankui</option><option>Djôrô</option><option>Goulmou</option><option>Guiriko</option>
@@ -69,69 +188,107 @@
                 <option>Yaadga</option>
             </select>
         </div>
+        
+        <!-- Affichage du budget total filtré -->
         <div id="totalCoutDisplay"></div>
     </div>
 
-    <div class="scrollable-content" id="displayArea"></div>
+    <!-- Zone de défilement des projets -->
+    <div class="scrollable-content" id="displayArea">
+        <!-- Les projets s'afficheront ici -->
+    </div>
 </div>
 
 <script>
+    // URL de ta base de données Firebase Realtime
     const DB_URL = "https://lapatrieoulamort-20210-default-rtdb.firebaseio.com/projets.json";
     let selectedYear = null;
 
-    function resetYearAndLoad() { selectedYear = null; loadProjects(); }
-    function filterByYear(year) { selectedYear = (selectedYear === year) ? null : year; loadProjects(); }
+    // Réinitialise l'année quand on change de région
+    function resetYearAndLoad() { 
+        selectedYear = null; 
+        loadProjects(); 
+    }
+
+    // Gère le clic sur les cartes d'année
+    function filterByYear(year) { 
+        selectedYear = (selectedYear === year) ? null : year; 
+        loadProjects(); 
+    }
 
     async function loadProjects() {
         try {
             const response = await fetch(DB_URL);
             const data = await response.json();
+            
+            // Transformation de l'objet Firebase en tableau
             const projects = data ? Object.keys(data).map(key => ({ id: key, ...data[key] })) : [];
             
             const fRegion = document.getElementById('filterRegion').value;
+            
+            // 1. Calcul et affichage des années disponibles
             const yearsCount = {};
             projects.forEach(p => { yearsCount[p.annee] = (yearsCount[p.annee] || 0) + 1; });
             
             document.getElementById('yearStats').innerHTML = Object.keys(yearsCount).sort().reverse().map(y => `
                 <div class="year-card ${selectedYear == y ? 'active' : ''}" onclick="filterByYear('${y}')">
-                    <small style="font-size:0.6rem">Année</small><span>${y}</span>
+                    <small style="font-size:0.6rem; opacity:0.8;">ANNÉE</small>
+                    <span>${y}</span>
                 </div>
             `).join('');
 
+            // 2. Filtrage des données
             let filtered = projects;
             if(fRegion !== "Tous") filtered = filtered.filter(p => p.region === fRegion);
             if(selectedYear) filtered = filtered.filter(p => p.annee == selectedYear);
 
+            // 3. Mise à jour du budget total si un filtre est actif
             const totalCoutDiv = document.getElementById('totalCoutDisplay');
             if (selectedYear || fRegion !== "Tous") {
                 const total = filtered.reduce((sum, p) => sum + Number(p.budget), 0);
                 totalCoutDiv.style.display = 'block';
-                totalCoutDiv.innerHTML = `Budget : ${total.toLocaleString()} FCFA (${filtered.length} projets)`;
-            } else { totalCoutDiv.style.display = 'none'; }
+                totalCoutDiv.innerHTML = `Budget Total : ${total.toLocaleString()} FCFA (${filtered.length} projets)`;
+            } else { 
+                totalCoutDiv.style.display = 'none'; 
+            }
 
+            // 4. Affichage des cartes projets
             const container = document.getElementById('displayArea');
             if (filtered.length === 0) {
-                container.innerHTML = `<p style="text-align:center; color:white; opacity:0.7; margin-top:30px;">Aucun projet.</p>`;
+                container.innerHTML = `<p style="text-align:center; color:white; opacity:0.6; margin-top:50px;">Aucune donnée disponible.</p>`;
                 return;
             }
 
+            // Affichage du plus récent au plus ancien
             container.innerHTML = filtered.reverse().map(p => `
                 <div class="project-item">
-                    <div class="p-images"><img src="${p.imgFinal}"><img src="${p.imgCours}"></div>
+                    <div class="p-images">
+                        <img src="${p.imgFinal}" alt="Maquette">
+                        <img src="${p.imgCours}" alt="Réalité">
+                    </div>
                     <div class="p-content">
                         <div class="p-title">${p.titre}</div>
                         <div class="p-info">📍 ${p.region} • 🏛 ${p.ministere}</div>
-                        <div class="progress-bar"><div class="progress-fill" style="width:${p.avancement}%"></div></div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${p.avancement}%"></div>
+                        </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span class="p-cost">${Number(p.budget).toLocaleString()} FCFA</span>
-                            <span style="font-size:0.7rem; font-weight:700; color:var(--green-main)">${p.avancement}%</span>
+                            <span style="font-size:0.75rem; font-weight:700; color:var(--green-main)">${p.avancement}% Réalisé</span>
                         </div>
                     </div>
                 </div>
             `).join('');
-        } catch (e) { console.error(e); }
+            
+        } catch (e) { 
+            console.error("Erreur de chargement Firebase:", e);
+            document.getElementById('displayArea').innerHTML = `<p style="color:white; text-align:center;">Erreur de connexion.</p>`;
+        }
     }
+
+    // Chargement initial
     window.onload = loadProjects;
 </script>
+
 </body>
 </html>
