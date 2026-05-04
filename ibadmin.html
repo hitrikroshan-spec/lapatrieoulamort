@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -31,7 +30,7 @@
 <div class="sidebar">
     <h2 style="color:var(--primary)">Faso Admin</h2>
     <p style="font-size:0.8rem; margin-bottom:30px">Base de données Firebase</p>
-    <button class="btn" onclick="document.getElementById('modalForm').style.display='flex'">+ Nouveau Projet</button>
+    <button class="btn" onclick="openModal()">+ Nouveau Projet</button>
     <br><br>
     <a href="index.html" style="text-decoration:none; color:#666; font-size:0.9rem">🏠 Retour au Site</a>
 </div>
@@ -51,8 +50,9 @@
 
 <div id="modalForm" class="modal">
     <div class="modal-content">
-        <h3>Ajouter un Projet</h3>
+        <h3 id="modalTitle">Ajouter un Projet</h3>
         <form id="projForm">
+            <input type="hidden" id="editId">
             <label>Titre</label><input type="text" id="titre" required>
             <label>Année</label><input type="number" id="annee" value="2026" required>
             <label>Région</label>
@@ -66,11 +66,11 @@
             <label>Ministère</label><input type="text" id="ministere" placeholder="ex: Santé" required>
             <label>Budget (FCFA)</label><input type="number" id="budget" required>
             <label>Avancement (%)</label><input type="number" id="avancement" min="0" max="100" required>
-            <label>Image Maquette</label><input type="file" id="img1" required>
-            <label>Image Réalité</label><input type="file" id="img2" required>
+            <label>Image Maquette</label><input type="file" id="img1">
+            <label>Image Réalité</label><input type="file" id="img2">
             <div style="display:flex; gap:10px">
                 <button type="submit" class="btn">Enregistrer</button>
-                <button type="button" class="btn" style="background:#ccc" onclick="document.getElementById('modalForm').style.display='none'">Annuler</button>
+                <button type="button" class="btn" style="background:#ccc" onclick="closeModal()">Annuler</button>
             </div>
         </form>
     </div>
@@ -79,11 +79,12 @@
 <script>
     const DB_BASE = "https://lapatrieoulamort-20210-default-rtdb.firebaseio.com/projets";
     const DB_URL = DB_BASE + ".json";
+    let projectsData = {};
 
     async function fetchData() {
         const res = await fetch(DB_URL);
-        const data = await res.json();
-        const list = data ? Object.keys(data).map(k => ({id: k, ...data[k]})) : [];
+        projectsData = await res.json() || {};
+        const list = Object.keys(projectsData).map(k => ({id: k, ...projectsData[k]}));
         
         document.getElementById('statTotal').innerText = list.length;
         const total = list.reduce((s, p) => s + Number(p.budget), 0);
@@ -94,9 +95,43 @@
                 <td><b>${p.titre}</b></td>
                 <td>${p.region}</td>
                 <td>${p.avancement}%</td>
-                <td><button onclick="deleteP('${p.id}')" style="border:none; cursor:pointer">🗑️</button></td>
+                <td>
+                    <button onclick="editP('${p.id}')" style="border:none; cursor:pointer; margin-right:10px">✏️</button>
+                    <button onclick="deleteP('${p.id}')" style="border:none; cursor:pointer">🗑️</button>
+                </td>
             </tr>
         `).join('');
+    }
+
+    function openModal() {
+        document.getElementById('projForm').reset();
+        document.getElementById('editId').value = "";
+        document.getElementById('modalTitle').innerText = "Ajouter un Projet";
+        document.getElementById('img1').required = true;
+        document.getElementById('img2').required = true;
+        document.getElementById('modalForm').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('modalForm').style.display = 'none';
+    }
+
+    function editP(id) {
+        const p = projectsData[id];
+        document.getElementById('editId').value = id;
+        document.getElementById('titre').value = p.titre;
+        document.getElementById('annee').value = p.annee;
+        document.getElementById('region').value = p.region;
+        document.getElementById('ministere').value = p.ministere;
+        document.getElementById('budget').value = p.budget;
+        document.getElementById('avancement').value = p.avancement;
+        
+        // En édition, les images ne sont plus obligatoires (on garde les anciennes si vides)
+        document.getElementById('img1').required = false;
+        document.getElementById('img2').required = false;
+        
+        document.getElementById('modalTitle').innerText = "Modifier le Projet";
+        document.getElementById('modalForm').style.display = 'flex';
     }
 
     async function deleteP(id) {
@@ -108,22 +143,41 @@
 
     document.getElementById('projForm').onsubmit = async function(e) {
         e.preventDefault();
-        const getB64 = (f) => new Promise(r => { let rd = new FileReader(); rd.readAsDataURL(f); rd.onload = () => r(rd.result); });
+        const id = document.getElementById('editId').value;
+        const getB64 = (f) => new Promise(r => { 
+            if(!f) return r(null);
+            let rd = new FileReader(); rd.readAsDataURL(f); rd.onload = () => r(rd.result); 
+        });
         
+        const img1File = document.getElementById('img1').files[0];
+        const img2File = document.getElementById('img2').files[0];
+
         const proj = {
             titre: document.getElementById('titre').value,
             annee: document.getElementById('annee').value,
             region: document.getElementById('region').value,
             ministere: document.getElementById('ministere').value,
             budget: document.getElementById('budget').value,
-            avancement: document.getElementById('avancement').value,
-            imgFinal: await getB64(document.getElementById('img1').files[0]),
-            imgCours: await getB64(document.getElementById('img2').files[0])
+            avancement: document.getElementById('avancement').value
         };
 
-        await fetch(DB_URL, { method: 'POST', body: JSON.stringify(proj) });
-        document.getElementById('modalForm').style.display='none';
-        this.reset();
+        // Gestion des images (si nouvelles images, on convertit, sinon on garde les anciennes en mode Edit)
+        const b64_1 = await getB64(img1File);
+        const b64_2 = await getB64(img2File);
+
+        if(id) {
+            // Mode Modification
+            proj.imgFinal = b64_1 || projectsData[id].imgFinal;
+            proj.imgCours = b64_2 || projectsData[id].imgCours;
+            await fetch(`${DB_BASE}/${id}.json`, { method: 'PUT', body: JSON.stringify(proj) });
+        } else {
+            // Mode Ajout
+            proj.imgFinal = b64_1;
+            proj.imgCours = b64_2;
+            await fetch(DB_URL, { method: 'POST', body: JSON.stringify(proj) });
+        }
+
+        closeModal();
         fetchData();
     };
 
